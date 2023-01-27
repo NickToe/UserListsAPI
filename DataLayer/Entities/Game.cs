@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using UserListsAPI.DataLayer.Enums;
 using UserListsAPI.JsonModels;
 
@@ -17,7 +16,6 @@ public record Game
     Title = title;
   }
 
-  // change key to string
   [Key]
   public string Id { get; set; } = null!;
   [Required]

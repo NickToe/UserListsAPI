@@ -59,7 +59,7 @@ public class MovieService : IItemService<Movie>
 
   public async Task<IEnumerable<Movie>> GetAllByTitle(string title, int maxNumber)
   {
-    ICollection<Movie> movies = (await _movieRepo.GetAll(title)).ToList();
+    ICollection<Movie> movies = (await _movieRepo.GetAllByTitle(title)).ToList();
     if (movies.Count < maxNumber)
     {
       _logger.LogInformation("Movies found in database with title {title}: {count}", title, movies.Count);

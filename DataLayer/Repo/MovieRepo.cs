@@ -17,17 +17,17 @@ public class MovieRepo : IItemRepo<Movie>
 
   public async Task<Movie?> GetById(string id)
   {
-    return await _context.Movies.FirstOrDefaultAsync(item => item.Id == id);
+    return await _context.Movies.AsNoTracking().FirstOrDefaultAsync(item => item.Id == id);
   }
 
   public async Task<Movie?> GetByTitle(string title)
   {
-    return await _context.Movies.FirstOrDefaultAsync(item => item.FullTitle.ToLower() == title.ToLower());
+    return await _context.Movies.AsNoTracking().FirstOrDefaultAsync(item => item.FullTitle.ToLower() == title.ToLower());
   }
 
-  public async Task<IEnumerable<Movie>> GetAll(string title)
+  public async Task<IEnumerable<Movie>> GetAllByTitle(string title)
   {
-    return await _context.Movies.Where(item => item.ItemStatus == ItemStatus.Ok && item.Title.ToLower().Contains(title.ToLower())).ToListAsync();
+    return await _context.Movies.AsNoTracking().Where(item => item.ItemStatus == ItemStatus.Ok && item.Title.ToLower().Contains(title.ToLower())).ToListAsync();
   }
 
   public async Task<bool> Add(Movie imdbMovie)

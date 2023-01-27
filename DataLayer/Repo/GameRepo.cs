@@ -17,17 +17,17 @@ public class GameRepo : IItemRepo<Game>
 
   public async Task<Game?> GetById(string id)
   {
-    return await _context.Games.FirstOrDefaultAsync(item => item.Id == id);
+    return await _context.Games.AsNoTracking().FirstOrDefaultAsync(item => item.Id == id);
   }
 
   public async Task<Game?> GetByTitle(string title)
   {
-    return await _context.Games.FirstOrDefaultAsync(item => item.Title == title);
+    return await _context.Games.AsNoTracking().FirstOrDefaultAsync(item => item.Title == title);
   }
 
-  public async Task<IEnumerable<Game>> GetAll(string title)
+  public async Task<IEnumerable<Game>> GetAllByTitle(string title)
   {
-    return await _context.Games.Where(item => item.ItemStatus == ItemStatus.Ok && item.Title.ToLower().Contains(title.ToLower())).ToListAsync();
+    return await _context.Games.AsNoTracking().Where(item => item.ItemStatus == ItemStatus.Ok && item.Title.ToLower().Contains(title.ToLower())).ToListAsync();
   }
 
   public async Task<bool> Add(Game game)

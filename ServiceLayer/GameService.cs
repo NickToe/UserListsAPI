@@ -32,7 +32,7 @@ public class GameService : IItemService<Game>
 
   public async Task<IEnumerable<Game>> GetAllByTitle(string title, int maxNumber)
   {
-    IEnumerable<Game> games = (await _repo.GetAll(title)).ToList();
+    IEnumerable<Game> games = (await _repo.GetAllByTitle(title)).ToList();
     if (!games.Any())
     {
       _logger.LogInformation("Games title({title}) were not found in DB", title);
