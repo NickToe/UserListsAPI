@@ -22,7 +22,7 @@ public class MovieService : IItemService<Movie>
   public async Task<Movie?> GetById(string id)
   {
     Movie? movie = await _movieRepo.GetById(id);
-    if(movie != default)
+    if (movie != default)
     {
       _logger.LogInformation("Movie {id}-{title} was retrieved from DB", movie.Id, movie.Title);
       return movie;
@@ -72,7 +72,7 @@ public class MovieService : IItemService<Movie>
           break;
         }
         // API may return irrelavant results, so check if movie was already added
-        if(!await _movieRepo.Any(jsonShort.Id))
+        if (!await _movieRepo.Any(jsonShort.Id))
         {
           movie = await GetFullMovie(jsonShort);
           if (movie != default)
@@ -89,15 +89,27 @@ public class MovieService : IItemService<Movie>
   private async Task<Movie?> GetFullMovieById(string id)
   {
     MovieJson? movieJson = await _httpClient.GetById(id);
-    if (movieJson == default || movieJson.Id == default || movieJson.Title == default)
+
+    if (movieJson == default) return default(Movie);
+
+    if (!String.IsNullOrEmpty(movieJson.ErrorMessage))
     {
-      _logger.LogInformation("Movie {id} was not found in API", id);
+      // id can only be received from external API, so if the error of type 'not valid' was received - the item is irrelevant
+      if (movieJson.ErrorMessage.Contains("not valid"))
+      {
+        movieJson.Id = id;
+        movieJson.Title = movieJson.ErrorMessage;
+        movieJson.Poster = movieJson.ErrorMessage;
+        _logger.LogWarning("Error from external API for id({id}): {error}", id, movieJson.ErrorMessage);
+        await _movieRepo.Add(Movie.ToEntity(movieJson));
+        await _movieRepo.UpdateSuccess(id, ItemStatus.Irrelevant);
+      }
       return default(Movie);
     }
     // API returns a lot of irrelevant results, so additional checks are required as well as adding these ids to DB to prevent new API requests
-    if(movieJson.Type == default || movieJson.Type != "Movie" || movieJson.RuntimeMins == default || movieJson.ReleaseDate == default)
+    if (movieJson.Type != "Movie" || String.IsNullOrEmpty(movieJson.Title) || String.IsNullOrEmpty(movieJson.Poster) || String.IsNullOrEmpty(movieJson.RuntimeMins) || String.IsNullOrEmpty(movieJson.ReleaseDate))
     {
-      _logger.LogInformation("Type of item with id({id}) is not 'Movie'", id);
+      _logger.LogWarning("Movie {id} was not found in API or error received or type is not 'Movie'", id);
       await _movieRepo.Add(Movie.ToEntity(movieJson));
       await _movieRepo.UpdateSuccess(id, ItemStatus.Irrelevant);
       return default(Movie);

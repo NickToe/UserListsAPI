@@ -36,7 +36,7 @@ public class MovieController : ControllerBase
   }
 
   [HttpGet("ByTitle")]
-  public async Task<IActionResult> GetAllByTitle([FromQuery] string title, [FromQuery] int maxNumber = 30)
+  public async Task<IActionResult> GetAllByTitle([FromQuery] string title, [FromQuery] int maxNumber = 10)
   {
     return Ok(await _service.GetAllByTitle(title, maxNumber));
   }

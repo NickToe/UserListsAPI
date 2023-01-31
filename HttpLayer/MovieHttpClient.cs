@@ -46,7 +46,7 @@ public class MovieHttpClient : ItemHttpClientBase
     if (!string.IsNullOrEmpty(errorMessage))
     {
       _logger.LogInformation("Error message: {0}", errorMessage);
-      return default(MovieJson);
+      return new MovieJson() { ErrorMessage = errorMessage };
     }
     string jsonDoc = JsonDocument.Parse(httpResponse).RootElement.ToString();
     return JsonSerializer.Deserialize<MovieJson>(jsonDoc);

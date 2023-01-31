@@ -64,4 +64,5 @@ public record MovieJson
 
   [JsonPropertyName("metacriticRating")]
   public string? MetascriticRating { get; set; }
+  public string ErrorMessage { get; set; } = String.Empty;
 }
