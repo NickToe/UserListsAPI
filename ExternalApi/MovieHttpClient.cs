@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using UserListsAPI.JsonModels;
 
-namespace UserListsAPI.HttpLayer;
+namespace UserListsAPI.ExternalApi;
 
 public class MovieHttpClient : ItemHttpClientBase
 {
@@ -16,7 +16,7 @@ public class MovieHttpClient : ItemHttpClientBase
   {
     string requestUrl = $"{_apiUrl}/Title/{_apiKey}/{id}";
     string? httpResponseBody = await SendExternalApiRequest(requestUrl);
-    if (string.IsNullOrEmpty(httpResponseBody)) return default(MovieJson);
+    if (string.IsNullOrEmpty(httpResponseBody)) return default;
     return Deserialize(httpResponseBody);
   }
 
@@ -24,7 +24,7 @@ public class MovieHttpClient : ItemHttpClientBase
   {
     string requestUrl = $"{_apiUrl}/SearchMovie/{_apiKey}/{title}";
     string? httpResponseBody = await SendExternalApiRequest(requestUrl);
-    if(string.IsNullOrEmpty(httpResponseBody)) return Enumerable.Empty<MovieJsonShort>();
+    if (string.IsNullOrEmpty(httpResponseBody)) return Enumerable.Empty<MovieJsonShort>();
     return DeserializeAll(httpResponseBody);
   }
 

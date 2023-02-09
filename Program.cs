@@ -1,11 +1,16 @@
-using UserListsAPI.HttpLayer;
-using UserListsAPI.DataLayer;
-using UserListsAPI.ServiceLayer;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using UserListsAPI.DataLayer.Repo;
-using UserListsAPI.DataLayer.Entities;
 using System.Reflection;
+using UserListsAPI.Middleware;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using UserListsAPI.DTOs;
+using UserListsAPI.Services;
+using UserListsAPI.Data.Repositories;
+using UserListsAPI.Data.Entities;
+using UserListsAPI.Data;
+using UserListsAPI.ExternalApi;
 
 namespace UserListsAPI;
 
@@ -22,8 +27,49 @@ public class Program
     builder.Logging.AddSerilog(logger);
 
     builder.Services.AddControllers();
+
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+
+    builder.Services.AddSwaggerGen(options =>
+    {
+      options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+      {
+        Description = "ApiKey must appear in header",
+        Type = SecuritySchemeType.ApiKey,
+        Name = "XApiKey",
+        In = ParameterLocation.Header,
+        Scheme = "ApiKeyScheme"
+      });
+      var key = new OpenApiSecurityScheme()
+      {
+        Reference = new OpenApiReference
+        {
+          Type = ReferenceType.SecurityScheme,
+          Id = "ApiKey"
+        },
+        In = ParameterLocation.Header
+      };
+      var requirement = new OpenApiSecurityRequirement { { key, new List<string>() } };
+      options.AddSecurityRequirement(requirement);
+    });
+
+    builder.Services.AddApiVersioning(options =>
+    {
+      options.AssumeDefaultVersionWhenUnspecified = true;
+      options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+      options.ReportApiVersions = true;
+      options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("XApiVersion"));
+    });
+
+    builder.Services.AddVersionedApiExplorer(setup =>
+    {
+      setup.GroupNameFormat = "'v'VVV";
+      setup.SubstituteApiVersionInUrl = true;
+    });
+
+    builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
     builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -31,32 +77,45 @@ public class Program
     int port = builder.Configuration.GetValue<int>("UserListsMVC:Port");
     builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.WithOrigins($"https://{host}:{port}").AllowAnyMethod().AllowAnyHeader()));
 
+    builder.Services.AddAutoMapper(typeof(AppMappingProfile));
+
     builder.Services.AddHostedService<DailyHostedService>();
 
     builder.Services.AddScoped<IItemService<Movie>, MovieService>();
     builder.Services.AddSingleton<MovieHttpClient>();
-    builder.Services.AddScoped<IItemRepo<Movie>, MovieRepo>();
+    builder.Services.AddScoped<IItemRepository<Movie>, MovieRepository>();
 
     builder.Services.AddScoped<IItemService<Game>, GameService>();
     builder.Services.AddSingleton<GameHttpClient>();
-    builder.Services.AddScoped<IItemRepo<Game>, GameRepo>();
+    builder.Services.AddScoped<IItemRepository<Game>, GameRepository>();
 
     var app = builder.Build();
 
     if (app.Environment.IsDevelopment())
     {
       app.UseSwagger();
-      app.UseSwaggerUI();
+
+      var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+      app.UseSwaggerUI(options =>
+      {
+        foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions.Reverse())
+        {
+          options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+              description.GroupName.ToUpperInvariant());
+        }
+      });
     }
 
     app.UseHttpsRedirection();
 
     app.UseCors();
 
+    app.UseMiddleware<ApiKeyMiddleware>();
+
     app.UseAuthorization();
 
     app.MapControllers();
 
-    app.Run();
+    await app.RunAsync();
   }
 }

@@ -1,4 +1,4 @@
-﻿namespace UserListsAPI.DataLayer.Enums;
+﻿namespace UserListsAPI.Data.Enums;
 
 public enum ItemStatus
 {

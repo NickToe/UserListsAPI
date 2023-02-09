@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UserListsAPI.DataLayer.Entities;
+using UserListsAPI.Data.Entities;
 
-namespace UserListsAPI.DataLayer;
+namespace UserListsAPI.Data;
 
 public class AppDbContext : DbContext
 {
