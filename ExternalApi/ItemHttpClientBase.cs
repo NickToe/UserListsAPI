@@ -1,4 +1,4 @@
-﻿namespace UserListsAPI.HttpLayer;
+﻿namespace UserListsAPI.ExternalApi;
 
 public abstract class ItemHttpClientBase
 {
@@ -18,7 +18,7 @@ public abstract class ItemHttpClientBase
   protected async Task<string?> SendExternalApiRequest(string requestUrl)
   {
     HttpResponseMessage httpResponse = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-    string httpResponseBody = String.Empty;
+    string httpResponseBody = string.Empty;
     try
     {
       _logger.LogInformation("Request URL: {requestUrl}", requestUrl);
@@ -30,7 +30,7 @@ public abstract class ItemHttpClientBase
     {
       _logger.LogWarning("Http request {requestMessage} returned {statusCode}", httpResponse.RequestMessage, httpResponse.StatusCode);
       _logger.LogWarning("Exception: {exceptionMessage}", ex.Message);
-      return default(string?);
+      return default;
     }
     return httpResponseBody;
   }

@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using UserListsAPI.DataLayer;
+using UserListsAPI.Data;
 
 #nullable disable
 
 namespace UserListsAPI.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+  [DbContext(typeof(AppDbContext))]
     [Migration("20230126191200_InitialCreate")]
     partial class InitialCreate
     {

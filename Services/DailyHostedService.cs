@@ -1,6 +1,6 @@
-﻿using UserListsAPI.DataLayer.Entities;
+﻿using UserListsAPI.Data.Entities;
 
-namespace UserListsAPI.ServiceLayer;
+namespace UserListsAPI.Services;
 
 public class DailyHostedService : BackgroundService
 {
@@ -20,9 +20,8 @@ public class DailyHostedService : BackgroundService
       {
         using (var scope = _serviceProvider.CreateScope())
         {
-          // call
           var gameService = scope.ServiceProvider.GetRequiredService<IItemService<Game>>();
-          await gameService.UpdateAll();
+          await gameService.UpdateAllAsync();
         }
       }
       catch (Exception ex)
@@ -30,6 +29,7 @@ public class DailyHostedService : BackgroundService
         _logger.LogError("Exception while handling daily task: {exception}", ex.Message);
       }
       TimeSpan timeSpan = new TimeOnly(0, 0, 0) - TimeOnly.FromDateTime(DateTime.Now);
+      _logger.LogInformation("Next daily background task will execute in {timeSpan}", timeSpan);
       await Task.Delay(timeSpan);
     }
   }

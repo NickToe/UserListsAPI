@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using UserListsAPI.JsonModels;
 
-namespace UserListsAPI.HttpLayer;
+namespace UserListsAPI.ExternalApi;
 
 public class GameHttpClient : ItemHttpClientBase
 {
@@ -17,7 +17,7 @@ public class GameHttpClient : ItemHttpClientBase
   {
     string requestUrl = $"https://store.steampowered.com/api/appdetails?appids={id}";
     string? httpResponseBody = await SendExternalApiRequest(requestUrl);
-    if(String.IsNullOrEmpty(httpResponseBody)) return default(GameJson);
+    if (string.IsNullOrEmpty(httpResponseBody)) return default;
     return Deserialize(id, httpResponseBody);
   }
 
@@ -25,7 +25,7 @@ public class GameHttpClient : ItemHttpClientBase
   {
     string requestUrl = $"https://store.steampowered.com/appreviews/{id}/?json=1&language=all&purchase_type=all&num_per_page=0";
     string? httpResponseBody = await SendExternalApiRequest(requestUrl);
-    if (String.IsNullOrEmpty(httpResponseBody)) return default(GameReviewsJson);
+    if (string.IsNullOrEmpty(httpResponseBody)) return default;
     return DeserializeReviews(httpResponseBody);
   }
 
@@ -33,13 +33,13 @@ public class GameHttpClient : ItemHttpClientBase
   {
     int lastAppid = 0;
     bool moreResults = true;
-    string requestUrl = String.Empty;
+    string requestUrl = string.Empty;
     List<GameJsonShort> gamesJsonShort = new List<GameJsonShort>();
     while (moreResults)
     {
       requestUrl = $"{_apiUrl}/IStoreService/GetAppList/v1/?max_results=50000&key={_apiKey}&last_appid={lastAppid}";
       string? httpResponseBody = await SendExternalApiRequest(requestUrl);
-      if (String.IsNullOrEmpty(httpResponseBody)) continue;
+      if (string.IsNullOrEmpty(httpResponseBody)) continue;
       gamesJsonShort.AddRange(DeserializeList(httpResponseBody, out moreResults, out lastAppid));
     }
     return gamesJsonShort;
@@ -55,7 +55,7 @@ public class GameHttpClient : ItemHttpClientBase
   {
     JsonElement jsonElement = JsonDocument.Parse(httpResponseBody).RootElement.GetProperty(id);
     bool success = jsonElement.GetProperty("success").GetBoolean();
-    if (!success) return default(GameJson);
+    if (!success) return default;
     string jsonDoc = JsonDocument.Parse(httpResponseBody).RootElement.GetProperty(id).GetProperty("data").ToString();
     return JsonSerializer.Deserialize<GameJson>(jsonDoc);
   }
@@ -63,7 +63,7 @@ public class GameHttpClient : ItemHttpClientBase
   private IEnumerable<GameJsonShort> DeserializeList(string httpResponseBody, out bool moreResults, out int lastAppid)
   {
     JsonElement jsonElement = JsonDocument.Parse(httpResponseBody).RootElement.GetProperty("response");
-    if(jsonElement.TryGetProperty("have_more_results", out JsonElement moreResElement))
+    if (jsonElement.TryGetProperty("have_more_results", out JsonElement moreResElement))
     {
       moreResults = moreResElement.GetBoolean();
       lastAppid = jsonElement.GetProperty("last_appid").GetInt32();

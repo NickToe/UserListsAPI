@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-using UserListsAPI.DataLayer.Enums;
-using UserListsAPI.JsonModels;
+using UserListsAPI.Data.Enums;
 
-namespace UserListsAPI.DataLayer.Entities;
+namespace UserListsAPI.Data.Entities;
 
-[Index(nameof(Id))]
 [Index(nameof(Title))]
 public record Movie
 {
@@ -38,28 +35,7 @@ public record Movie
   public string? ImdbRating { get; set; }
   public string? ImdbRatingVotes { get; set; }
   public string? MetascriticRating { get; set; }
-  [JsonIgnore]
   public ItemStatus ItemStatus { get; set; } = ItemStatus.Ok;
 
   public static string GetFullTitle(string title, string year) => $"{title} ({year})";
-
-  public static Movie ToEntity(MovieJson movieJson) => new(movieJson.Id, movieJson.Title, movieJson.Poster)
-  {
-    FullTitle = movieJson.FullTitle,
-    Type = movieJson.Type,
-    Year = movieJson.Year,
-    ReleaseDate = movieJson.ReleaseDate,
-    RuntimeMins = movieJson.RuntimeMins,
-    RuntimeStr = movieJson.RuntimeStr,
-    Plot = movieJson.Plot,
-    Directors = movieJson.Directors,
-    Stars = movieJson.Stars,
-    Genres = movieJson.Genres,
-    Companies = movieJson.Companies,
-    Countries = movieJson.Countries,
-    ContentRating = movieJson.ContentRating,
-    ImdbRating = movieJson.ImdbRating,
-    ImdbRatingVotes = movieJson.ImdbRatingVotes,
-    MetascriticRating = movieJson.MetascriticRating
-  };
 }
