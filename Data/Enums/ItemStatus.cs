@@ -2,7 +2,7 @@
 
 public enum ItemStatus
 {
-  Ok,
-  Unavailable,
-  Irrelevant
+    Ok,
+    Unavailable,
+    Irrelevant
 }
