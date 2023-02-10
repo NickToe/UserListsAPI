@@ -90,7 +90,7 @@ public class GameService : IItemService<GameDTO>
             if (retrievedGames.Count < maxItems)
             {
                 retrievedGame = await GetByIdFromApiAsync(game);
-                if (retrievedGame == default) break;
+                if (retrievedGame == default) continue;
                 retrievedGames.Add(retrievedGame);
             }
         }
@@ -104,7 +104,7 @@ public class GameService : IItemService<GameDTO>
     /// <returns></returns>
     private async Task<Game?> GetByIdFromApiAsync(Game game)
     {
-        if (!game.IsFilled() && game.ItemStatus == ItemStatus.Ok)
+        if (!game.IsFilled())
         {
             GameJson? gameJson;
             GameReviewsJson? gameReviewsJson;
@@ -116,6 +116,7 @@ public class GameService : IItemService<GameDTO>
                 {
                     tmpGame.ItemStatus = ItemStatus.Unavailable;
                     await _repo.SaveChangesAsync();
+                    _logger.LogInformation("Game {id}-{title} ({status}) was retrieved from API", tmpGame.Id, tmpGame.Title, tmpGame.ItemStatus);
                 }
                 return default;
             }
@@ -124,7 +125,7 @@ public class GameService : IItemService<GameDTO>
             game = _mapper.Map(gameReviewsJson, game);
             _repo.Add(game);
             await _repo.SaveChangesAsync();
-            _logger.LogInformation("Game {id}-{title} was retrieved from API", game.Id, game.Title);
+            _logger.LogInformation("Game {id}-{title} ({status}) was retrieved from API", game.Id, game.Title, game.ItemStatus);
         }
         else
         {

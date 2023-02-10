@@ -1,4 +1,6 @@
-﻿namespace UserListsAPI.ExternalApi;
+﻿using UserListsAPI.Data.Errors;
+
+namespace UserListsAPI.ExternalApi;
 
 public abstract class ItemHttpClientBase
 {
@@ -29,7 +31,7 @@ public abstract class ItemHttpClientBase
         {
             _logger.LogWarning("Http request {requestMessage} returned {statusCode}", httpResponse.RequestMessage, httpResponse.StatusCode);
             _logger.LogWarning("Exception: {exceptionMessage}", ex.Message);
-            return default;
+            throw new AppException($"Request {requestUrl} failed");
         }
         return httpResponseBody;
     }
