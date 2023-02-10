@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserListsAPI", "UserListsAPI.csproj", "{17EE0E01-6392-4B57-9FEB-149DE3E2FC65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserListsAPI", "UserListsAPI.csproj", "{17EE0E01-6392-4B57-9FEB-149DE3E2FC65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
