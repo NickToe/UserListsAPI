@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using UserListsAPI.Data.Entities;
-using UserListsAPI.DTOs;
-using UserListsAPI.Services;
+using UserListsAPI.Application.Abstractions;
+using UserListsAPI.Application.DTOs;
+using UserListsAPI.Domain.Entities;
 
 namespace UserListsAPI.Controllers.v1;
 

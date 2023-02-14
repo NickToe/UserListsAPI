@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
-using UserListsAPI.Data.Errors;
+using UserListsAPI.Application.Exceptions;
 
 namespace UserListsAPI.Middleware;
 
