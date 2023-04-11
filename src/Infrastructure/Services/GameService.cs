@@ -50,36 +50,50 @@ public class GameService : IItemService<GameDTO>
 
     private async Task<Game?> GetFullGameByIdAsync(string id)
     {
-        Game? game = await _context.Games.AsNoTracking().FirstOrDefaultAsync(item => item.Id == id && item.ItemStatus == ItemStatus.Ok);
+        Game? game = await _context.Games
+            .AsNoTracking()
+            .FirstOrDefaultAsync(item => item.Id == id && item.ItemStatus == ItemStatus.Ok);
+
         if (game == null)
         {
             _logger.LogInformation("Game id({id}) was not found in DB", id);
             return default;
         }
+
         game = await GetByIdFromApiAsync(game);
+
         return game;
     }
 
     public async Task<GameDTO?> GetByExactTitleAsync(string title)
     {
-        Game? game = await _context.Games.AsNoTracking().FirstOrDefaultAsync(item => item.Title.ToLower() == title.ToLower() && item.ItemStatus == ItemStatus.Ok);
+        Game? game = await _context.Games
+            .AsNoTracking()
+            .FirstOrDefaultAsync(item => item.Title.ToLower() == title.ToLower() && item.ItemStatus == ItemStatus.Ok);
+
         if (game is null)
         {
             _logger.LogInformation("Game with title {title} was not found!", title);
             return default;
         }
+
         game = await GetByIdFromApiAsync(game);
         return _mapper.Map<GameDTO>(game);
     }
 
     public async Task<IEnumerable<GameDTO>> GetAllByTitleAsync(string title, int maxItems)
     {
-        IEnumerable<Game> games = await _context.Games.AsNoTracking().Where(item => item.ItemStatus == ItemStatus.Ok && item.Title.ToLower().Contains(title.ToLower())).ToListAsync();
+        IEnumerable<Game> games = await _context.Games
+            .AsNoTracking()
+            .Where(item => item.ItemStatus == ItemStatus.Ok && item.Title.ToLower().Contains(title.ToLower()))
+            .ToListAsync();
+
         if (!games.Any())
         {
             _logger.LogInformation("Games title({title}) were not found in DB", title);
             return Enumerable.Empty<GameDTO>();
         }
+
         games = await GetAllByIdFromApiAsync(games, maxItems);
         return _mapper.Map<IEnumerable<GameDTO>>(games);
     }
@@ -162,6 +176,7 @@ public class GameService : IItemService<GameDTO>
                 }
             }
         }
+
         int updatedRecords = await _context.SaveChangesAsync();
         _logger.LogInformation("Current time: {time}", DateTime.Now);
         _logger.LogInformation("{updatedRecords} records were updated", updatedRecords);

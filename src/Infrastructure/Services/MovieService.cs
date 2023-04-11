@@ -28,7 +28,8 @@ public class MovieService : IItemService<MovieDTO>
 
     public async Task<MovieDTO?> GetByIdAsync(string id)
     {
-        Movie? movie = await _context.Movies.AsNoTracking()
+        Movie? movie = await _context.Movies
+            .AsNoTracking()
             .FirstOrDefaultAsync(item => item.Id == id && item.ItemStatus == ItemStatus.Ok) ?? await GetByIdFromApiAsync(id);
 
         return _mapper.Map<MovieDTO>(movie);
@@ -55,7 +56,8 @@ public class MovieService : IItemService<MovieDTO>
 
     private async Task<Movie?> GetByIdFromAsync(string id)
     {
-        Movie? movie = await _context.Movies.AsNoTracking()
+        Movie? movie = await _context.Movies
+            .AsNoTracking()
             .FirstOrDefaultAsync(item => item.Id == id && item.ItemStatus == ItemStatus.Ok);
 
         if (movie != default)
@@ -69,7 +71,8 @@ public class MovieService : IItemService<MovieDTO>
 
     public async Task<MovieDTO?> GetByExactTitleAsync(string title)
     {
-        Movie? movie = await _context.Movies.AsNoTracking()
+        Movie? movie = await _context.Movies
+            .AsNoTracking()
             .FirstOrDefaultAsync(item => item.FullTitle.ToLower() == title.ToLower() && item.ItemStatus == ItemStatus.Ok);
 
         if (movie != default)
@@ -77,6 +80,7 @@ public class MovieService : IItemService<MovieDTO>
             _logger.LogInformation("Movie {id}-{title} was retrieved from DB", movie.Id, movie.Title);
             return _mapper.Map<MovieDTO>(movie);
         }
+
         movie = await GetByIdFromShortJson((await _httpClient.GetAllByTitleAsync(title)).FirstOrDefault());
 
         return _mapper.Map<MovieDTO>(movie);
@@ -84,10 +88,12 @@ public class MovieService : IItemService<MovieDTO>
 
     public async Task<IEnumerable<MovieDTO>> GetAllByTitleAsync(string title, int maxItems)
     {
-        ICollection<Movie> movies = await _context.Movies.AsNoTracking()
+        ICollection<Movie> movies = await _context.Movies
+            .AsNoTracking()
             .Where(item => item.ItemStatus == ItemStatus.Ok && item.Title.ToLower().Contains(title.ToLower()))
             .OrderBy(item => item.FullTitle)
-            .Take(maxItems).ToListAsync();
+            .Take(maxItems)
+            .ToListAsync();
 
         if (movies.Count < maxItems)
         {
