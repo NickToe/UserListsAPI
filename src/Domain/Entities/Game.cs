@@ -7,6 +7,8 @@ namespace Domain.Entities;
 [Index(nameof(Title))]
 public record Game
 {
+    public Game() { }
+
     public Game(string id, string title)
     {
         Id = id;

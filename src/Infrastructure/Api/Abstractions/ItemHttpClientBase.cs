@@ -14,8 +14,8 @@ public abstract class ItemHttpClientBase
     public ItemHttpClientBase(ILogger logger, IConfiguration configuration, string itemType)
     {
         _logger = logger;
-        _apiUrl = configuration.GetValue<string>($"{itemType}:ApiUrl");
-        _apiKey = configuration.GetValue<string>($"{itemType}:ApiKey");
+        _apiUrl = configuration.GetValue<string>($"{itemType}:ApiUrl") ?? throw new ConfigException($"'{itemType}:ApiUrl' was not found in configuration");
+        _apiKey = configuration.GetValue<string>($"{itemType}:ApiKey") ?? throw new ConfigException($"'{itemType}:ApiKey' was not found in configuration");
     }
 
     protected async Task<string?> SendApiRequestAsync(string requestUrl)

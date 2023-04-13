@@ -63,5 +63,29 @@ public record MovieJson
 
     [JsonPropertyName("metacriticRating")]
     public string? MetascriticRating { get; set; }
+
+    [JsonIgnore]
     public string ErrorMessage { get; set; } = string.Empty;
+
+    public bool IsValidMovie()
+    {
+        if (Type != "Movie")
+        {
+            ErrorMessage = "Type is not 'Movie'";
+        }
+        else if (string.IsNullOrEmpty(Title))
+        {
+            ErrorMessage = "Title is absent";
+        }
+        else if(string.IsNullOrEmpty(ReleaseDate))
+        {
+            ErrorMessage = "Release Date is absent";
+        }
+        else if(string.IsNullOrEmpty(RuntimeStr))
+        {
+            ErrorMessage = "Runtime is absent";
+        }
+
+        return string.IsNullOrEmpty(ErrorMessage);
+    }
 }

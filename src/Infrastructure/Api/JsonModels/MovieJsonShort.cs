@@ -15,4 +15,6 @@ public record MovieJsonShort
 
     [JsonPropertyName("description")]
     public string Description { get; set; } = null!;
+
+    public bool IsValid() => !string.IsNullOrEmpty(Poster) && !string.IsNullOrEmpty(Description);
 }

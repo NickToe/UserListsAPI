@@ -27,6 +27,13 @@ public class ErrorHandlerMiddleware
                     // custom application error
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     break;
+                case ConfigException e:
+                    // something is wrong with the configuration
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    break;
+                case ApiKeyException e:
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    break;
                 default:
                     // unhandled error
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
