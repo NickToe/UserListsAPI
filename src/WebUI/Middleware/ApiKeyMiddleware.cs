@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Text.Json;
+﻿using Application.Exceptions;
 
 namespace WebUI.Middleware;
 
@@ -17,22 +16,14 @@ public class ApiKeyMiddleware
     {
         if (!context.Request.Headers.TryGetValue(_apiKey, out var extractedApiKey))
         {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            context.Response.ContentType = "application/json";
-            var result = JsonSerializer.Serialize(new { statusCode = context.Response.StatusCode, message = "Api Key was not provided" });
-            await context.Response.WriteAsync(result);
-            return;
+            throw new ApiKeyException("API key was not provided");
         }
 
-        var apiKey = context.RequestServices.GetRequiredService<IConfiguration>().GetValue<string>(_apiKey);
+        var apiKey = context.RequestServices.GetRequiredService<IConfiguration>().GetValue<string>(_apiKey) ?? throw new ConfigException("API key 'XApiKey' was not found in configuration");
 
         if (!apiKey.Equals(extractedApiKey))
         {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            context.Response.ContentType = "application/json";
-            var result = JsonSerializer.Serialize(new { statusCode = context.Response.StatusCode, message = "Unauthorized request" });
-            await context.Response.WriteAsync(result);
-            return;
+            throw new ApiKeyException("API key is not valid");
         }
 
         await _next(context);

@@ -7,6 +7,8 @@ namespace Domain.Entities;
 [Index(nameof(Title))]
 public record Movie
 {
+    public Movie() { }
+
     public Movie(string id, string title, string poster)
     {
         Id = id;

@@ -15,43 +15,59 @@ public class MovieHttpClient : ItemHttpClientBase
         _logger = logger;
     }
 
-    public async Task<MovieJson?> GetByIdAsync(string id)
+    public async Task<MovieJson> GetByIdAsync(string id)
     {
         string requestUrl = $"{_apiUrl}/Title/{_apiKey}/{id}";
         string? httpResponseBody = await SendApiRequestAsync(requestUrl);
-        if (string.IsNullOrEmpty(httpResponseBody)) return default;
+
+        if (string.IsNullOrEmpty(httpResponseBody))
+        {
+            return new MovieJson() { ErrorMessage = "Failed to retrieve a movie" };
+        }
+
         return Deserialize(httpResponseBody);
     }
 
-    public async Task<IEnumerable<MovieJsonShort>> GetAllByTitleAsync(string title)
+    public async Task<IEnumerable<MovieJsonShort>> GetByTitleAsync(string title)
     {
         string requestUrl = $"{_apiUrl}/SearchMovie/{_apiKey}/{title}";
         string? httpResponseBody = await SendApiRequestAsync(requestUrl);
-        if (string.IsNullOrEmpty(httpResponseBody)) return Enumerable.Empty<MovieJsonShort>();
+
+        if (string.IsNullOrEmpty(httpResponseBody))
+        {
+            return Enumerable.Empty<MovieJsonShort>();
+        }
+
         return DeserializeAll(httpResponseBody);
     }
 
     private IEnumerable<MovieJsonShort> DeserializeAll(string httpResponse)
     {
         string errorMessage = JsonDocument.Parse(httpResponse).RootElement.GetProperty("errorMessage").ToString();
+
         if (!string.IsNullOrEmpty(errorMessage))
         {
             _logger.LogInformation("Error message: {0}", errorMessage);
             return Enumerable.Empty<MovieJsonShort>();
         }
+
         string jsonDoc = JsonDocument.Parse(httpResponse).RootElement.GetProperty("results").ToString();
+
         return JsonSerializer.Deserialize<IEnumerable<MovieJsonShort>>(jsonDoc) ?? Enumerable.Empty<MovieJsonShort>();
     }
 
-    private MovieJson? Deserialize(string httpResponse)
+    private MovieJson Deserialize(string httpResponse)
     {
         string errorMessage = JsonDocument.Parse(httpResponse).RootElement.GetProperty("errorMessage").ToString();
+
         if (!string.IsNullOrEmpty(errorMessage))
         {
             _logger.LogInformation("Error message: {0}", errorMessage);
             return new MovieJson() { ErrorMessage = errorMessage };
         }
+
         string jsonDoc = JsonDocument.Parse(httpResponse).RootElement.ToString();
-        return JsonSerializer.Deserialize<MovieJson>(jsonDoc);
+
+        return JsonSerializer.Deserialize<MovieJson>(jsonDoc) ?? new MovieJson() { ErrorMessage = "Failed to deserialize a movie" };
     }
 }

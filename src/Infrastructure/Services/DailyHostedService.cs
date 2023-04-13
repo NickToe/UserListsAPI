@@ -25,7 +25,7 @@ public class DailyHostedService : BackgroundService
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var gameService = scope.ServiceProvider.GetRequiredService<IItemService<GameDTO>>();
-                    await gameService.UpdateAllAsync();
+                    await gameService.AddAllAsync();
                 }
             }
             catch (Exception ex)
